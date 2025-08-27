@@ -81,7 +81,6 @@ function AIContentRenderer({ content, onSectionLinkClick, onLegalLinkClick }) {
                     </SectionLink>
                 );
             }
-            // THIS IS THE UPDATED PART
             if (/^\*[^*]+\sv\.\s[^*]+\*$/.test(part)) {
                 const caseName = part.slice(1, -1);
                 return (
@@ -90,7 +89,7 @@ function AIContentRenderer({ content, onSectionLinkClick, onLegalLinkClick }) {
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
-                                onLegalLinkClick(caseName); // This calls the new handler
+                                onLegalLinkClick(caseName);
                             }}
                             className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1"
                         >
@@ -100,7 +99,6 @@ function AIContentRenderer({ content, onSectionLinkClick, onLegalLinkClick }) {
                     </span>
                 );
             }
-            // END OF UPDATED PART
             if (/^\*\*.*?\*\*$/.test(part)) {
                  return <strong key={i} className="text-[#faecc4]">{part.slice(2, -2)}</strong>;
             }
@@ -136,6 +134,73 @@ function AIContentRenderer({ content, onSectionLinkClick, onLegalLinkClick }) {
             </div>
         );
     }
+
+    if (typeof content === 'object' && content !== null && !React.isValidElement(content)) {
+        if (content.recommendationSummary && content.implementationSteps) {
+            return (
+                <div className="space-y-4">
+                    <div>
+                        <AIContentRenderer content={content.recommendationSummary} onSectionLinkClick={onSectionLinkClick} onLegalLinkClick={onLegalLinkClick} />
+                    </div>
+                    <div className="border-t border-gray-600 pt-4">
+                        <h4 className="font-bold text-lg text-[#faecc4] mb-2">Implementation Steps:</h4>
+                        <AIContentRenderer content={content.implementationSteps} onSectionLinkClick={onSectionLinkClick} onLegalLinkClick={onLegalLinkClick} />
+                    </div>
+                </div>
+            );
+        }
+
+        return (
+            <div>
+                {Object.entries(content).map(([key, value]) => (
+                    <ExpandableOption key={key} title={value.title || key}>
+                        <div className="space-y-3 text-white">
+                           {Object.entries(value).map(([prop, val]) => {
+                                if (prop === 'title') return null;
+                                const formattedProp = prop.charAt(0).toUpperCase() + prop.slice(1).replace(/([A-Z])/g, ' $1');
+                                
+                                if (prop === 'suggestedLanguage') {
+                                    return (
+                                        <div key={prop} className="mt-2">
+                                            <strong className="text-[#faecc4]">{formattedProp}:</strong>
+                                            <div className="mt-1 p-3 border border-dashed border-gray-500 rounded-md bg-gray-800 italic whitespace-pre-line">
+                                                {renderTextWithLinks(String(val))}
+                                            </div>
+                                        </div>
+                                    );
+                                }
+
+                                return (
+                                    <p key={prop}>
+                                        <strong>{formattedProp}:</strong> <span>{renderTextWithLinks(String(val))}</span>
+                                    </p>
+                                );
+                           })}
+                        </div>
+                    </ExpandableOption>
+                ))}
+            </div>
+        );
+    }
+    
+    if (React.isValidElement(content)) {
+        return React.cloneElement(content, { onLinkClick });
+    }
+
+    const lines = String(content).split('\n').filter(line => line.trim() !== '');
+    return (
+        <div className="text-white space-y-2">
+            {lines.map((line, index) => {
+                 if (React.isValidElement(line)) return React.cloneElement(line, { key: index, onLinkClick });
+                return (
+                    <p key={index}>
+                       {renderTextWithLinks(line)}
+                    </p>
+                );
+            })}
+        </div>
+    );
+}
 
     if (typeof content === 'object' && content !== null && !React.isValidElement(content)) {
         if (content.recommendationSummary && content.implementationSteps) {
