@@ -456,9 +456,9 @@ function ReportViewerModal({ report, scenarios, onClose, onSectionLinkClick }) {
                         </div>
                         {Object.keys(reportData).filter(k => k.startsWith('step')).map(stepKey => (
                             <StepDetail key={stepKey} stepKey={stepKey} title={reportData[stepKey].title}>
-                                <AIContentRenderer content={reportData[stepKey].content} onSectionLinkClick={onSectionLinkClick} />
-                            </StepDetail>
-                        ))}
+                                <AIContentRenderer content={reportData[stepKey].content} onSectionLinkClick={onSectionLinkClick} onLegalLinkClick={handleOpenLegalJournal} />
+                                </StepDetail>
+                         ))}
                     </div>
                 </div>
             </div>
@@ -839,7 +839,7 @@ function RiskAssessmentCenter({ handbookText, apiKey, handbookSectionLanguage, o
                         
                         {isOpen && (
                              <div className="border-t border-gray-600 pt-4">
-                                 <AIContentRenderer content={children} onSectionLinkClick={onSectionLinkClick} />
+                                 <AIContentRenderer content={children} onSectionLinkClick={onSectionLinkClick} onLegalLinkClick={handleOpenLegalJournal} />
                                  {stepKey === 'step6' && (
                                      <div className="border-t border-gray-600 mt-6 pt-6"> 
                                          <h3 className="text-lg font-semibold text-[#faecc4] mb-2 flex items-center"><Gavel className="w-5 h-5 mr-2"/>Get Direct Legal Help</h3> 
@@ -1766,7 +1766,7 @@ Question: "${questionText}"`;
                                 {isAnalyzing && <p className="text-sm text-yellow-400 mt-2">Analyzing...</p>}
                                 {currentAnswer && (
                                      <div className="mt-3 p-3 bg-gray-800 rounded-md border-l-4 border-blue-400">
-                                         <AIContentRenderer content={currentAnswer} onSectionLinkClick={handleSectionLinkClick} />
+                                         <AIContentRenderer content={currentAnswer} onSectionLinkClick={handleSectionLinkClick} onLegalLinkClick={handleOpenLegalJournal} />
                                      </div>
                                 )}
                             </div>
@@ -1818,11 +1818,11 @@ Question: "${questionText}"`;
                                 <div className="space-y-4 text-sm">
                                     <div className="p-3 bg-gray-800 rounded-md border-l-4 border-blue-400">
                                         <h4 className="font-bold text-blue-300 mb-1">Legal Guidance</h4>
-                                        <AIContentRenderer content={legalAnswer.guidance} onSectionLinkClick={handleSectionLinkClick} />
+                                        <AIContentRenderer content={legalAnswer.guidance} onSectionLinkClick={handleSectionLinkClick} onLegalLinkClick={handleOpenLegalJournal} />
                                     </div>
                                     <div className="p-3 bg-gray-800 rounded-md border-l-4 border-green-400">
                                         <h4 className="font-bold text-green-300 mb-1">Key References</h4>
-                                        <AIContentRenderer content={legalAnswer.references} onSectionLinkClick={handleSectionLinkClick} />
+                                        <AIContentRenderer content={legalAnswer.references} onSectionLinkClick={handleSectionLinkClick} onLegalLinkClick={handleOpenLegalJournal} />
                                     </div>
                                     <div className={`p-3 bg-gray-800 rounded-md border-l-4 ${legalAnswer.risk.level === 'High' ? 'border-red-400' : 'border-yellow-400'}`}>
                                         <h4 className={`font-bold ${legalAnswer.risk.level === 'High' ? 'text-red-300' : 'text-yellow-300'} mb-1`}>Risk Analysis & Recommendation</h4>
@@ -2052,6 +2052,14 @@ Question: "${questionText}"`;
             )}
             
             <HandbookSectionModal section={modalSection} onClose={() => setModalSection(null)} />
+            {isLegalJournalOpen && (
+                <LegalReferenceJournal
+                    query={legalJournalQuery}
+                    onClose={handleCloseLegalJournal}
+                    apiKey={GEMINI_API_KEY}
+                />
+            )}
         </div>
     );
 }
+       
