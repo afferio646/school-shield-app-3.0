@@ -58,7 +58,7 @@ function SectionLink({ number, onLinkClick, children }) {
 }
 
 // --- CORRECTED: AIContentRenderer with fixed link generation ---
-function AIContentRenderer({ content, onSectionLinkClick }) {
+function AIContentRenderer({ content, onSectionLinkClick, onLegalLinkClick }) {
     const renderTextWithLinks = (text) => {
         if (typeof text !== 'string') return text;
 
@@ -66,7 +66,6 @@ function AIContentRenderer({ content, onSectionLinkClick }) {
         const caseLawRegex = /(\*[^*]+\sv\.\s[^*]+\*)/;
         const boldRegex = /(\*\*.*?\*\*)/;
         
-        // CORRECTED: Removed the extra capturing group around the combined regex
         const combinedRegex = new RegExp(`${sectionRegex.source}|${caseLawRegex.source}|${boldRegex.source}`, 'g');
         
         const parts = text.split(combinedRegex).filter(Boolean);
@@ -80,24 +79,26 @@ function AIContentRenderer({ content, onSectionLinkClick }) {
                     </SectionLink>
                 );
             }
+            // THIS IS THE UPDATED PART
             if (/^\*[^*]+\sv\.\s[^*]+\*$/.test(part)) {
                 const caseName = part.slice(1, -1);
                 return (
                     <span key={i} className="inline-flex items-center gap-2">
                         <em className="font-semibold">{caseName}</em>
-                        <a
-                            href={`https://www.google.com/search?q=${encodeURIComponent(caseName)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onLegalLinkClick(caseName); // This calls the new handler
+                            }}
                             className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-2 py-0.5 rounded-md text-xs inline-flex items-center gap-1"
-                            onClick={(e) => e.stopPropagation()}
                         >
-                            <ExternalLink size={12} />
-                            View Source
-                        </a>
+                            <Search size={12} />
+                            View References
+                        </button>
                     </span>
                 );
             }
+            // END OF UPDATED PART
             if (/^\*\*.*?\*\*$/.test(part)) {
                  return <strong key={i} className="text-[#faecc4]">{part.slice(2, -2)}</strong>;
             }
@@ -139,11 +140,11 @@ function AIContentRenderer({ content, onSectionLinkClick }) {
             return (
                 <div className="space-y-4">
                     <div>
-                        <AIContentRenderer content={content.recommendationSummary} onSectionLinkClick={onSectionLinkClick} />
+                        <AIContentRenderer content={content.recommendationSummary} onSectionLinkClick={onSectionLinkClick} onLegalLinkClick={onLegalLinkClick} />
                     </div>
                     <div className="border-t border-gray-600 pt-4">
                         <h4 className="font-bold text-lg text-[#faecc4] mb-2">Implementation Steps:</h4>
-                        <AIContentRenderer content={content.implementationSteps} onSectionLinkClick={onSectionLinkClick} />
+                        <AIContentRenderer content={content.implementationSteps} onSectionLinkClick={onSectionLinkClick} onLegalLinkClick={onLegalLinkClick} />
                     </div>
                 </div>
             );
@@ -1158,7 +1159,20 @@ export default function App() {
     const [handbookTopicQuery, setHandbookTopicQuery] = useState("");
     const [handbookTopicResults, setHandbookTopicResults] = useState(null);
     const [isAnalyzingTopic, setIsAnalyzingTopic] = useState(false);
+    
+    const [legalJournalQuery, setLegalJournalQuery] = useState("");
+    const [isLegalJournalOpen, setIsLegalJournalOpen] = useState(false);
 
+    const handleOpenLegalJournal = (caseName) => {
+        setLegalJournalQuery(caseName);
+        setIsLegalJournalOpen(true);
+    };
+
+    const handleCloseLegalJournal = () => {
+        setIsLegalJournalOpen(false);
+        setLegalJournalQuery("");
+    };
+    
     // --- NEW: Firebase Setup and Query History Persistence ---
     useEffect(() => {
         try {
