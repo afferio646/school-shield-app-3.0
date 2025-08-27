@@ -4,6 +4,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, collection, addDoc, query, onSnapshot, serverTimestamp, orderBy } from 'firebase/firestore';
 import HandbookComparisonCard from './components/HandbookComparisonCard.jsx';
+import LegalReferenceJournal from './components/LegalReferenceJournal';
 
 // --- SECURE API KEY HANDLING ---
 // The API key is now preserved as requested.
