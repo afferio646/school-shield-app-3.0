@@ -1,4 +1,4 @@
-import React, from 'react';
+import React from 'react';
 import { X, Search } from 'lucide-react';
 
 // This is the new component for your Legal Reference Journal modal.
