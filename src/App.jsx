@@ -133,8 +133,7 @@ function AIContentRenderer({ content, onSectionLinkClick, onLegalLinkClick }) {
                 })}
             </div>
         );
-    }
-
+   
     if (typeof content === 'object' && content !== null && !React.isValidElement(content)) {
         if (content.recommendationSummary && content.implementationSteps) {
             return (
