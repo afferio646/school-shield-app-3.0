@@ -1,24 +1,20 @@
 import React from 'react';
 import { X, Search } from 'lucide-react';
 
-// This is the new component for your Legal Reference Journal modal.
 export default function LegalReferenceJournal({ query, onClose, apiKey }) {
   const [results, setResults] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
 
   React.useEffect(() => {
-    // This function is called when the component opens.
     const fetchLegalData = async () => {
       if (!query) return;
 
       setIsLoading(true);
       setError(null);
 
-      // This is the system prompt that instructs the AI.
       const systemPrompt = `You are a legal research assistant. Your task is to perform a Google search for the user's query, which will be a legal case name. You must return the top 4 search results. For each result, you must provide the title, the full URL, and a concise snippet. Your entire response must be a JSON object that strictly follows this schema: { "results": [{ "title": "string", "url": "string", "snippet": "string" }] }`;
       
-      // This is the user's specific query (the case name).
       const userQuery = `Find a detailed analysis of the case: ${query}`;
 
       try {
@@ -26,7 +22,7 @@ export default function LegalReferenceJournal({ query, onClose, apiKey }) {
         
         const payload = {
           contents: [{ parts: [{ text: userQuery }] }],
-          tools: [{ "google_search": {} }], // This enables the Google Search tool.
+          tools: [{ "google_search": {} }],
           systemInstruction: {
             parts: [{ text: systemPrompt }]
           },
