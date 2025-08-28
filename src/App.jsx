@@ -122,7 +122,7 @@ function AIContentRenderer({ content, onSectionLinkClick, onLegalLinkClick }) {
         }
 
         return (
-            <div className="text-white space-y-2">
+            <div className="text-white space-y-2" style={{ border: '3px solid red' }}>
                 {content.map((item, index) => {
                     if (React.isValidElement(item)) return React.cloneElement(item, { key: index, onLinkClick });
                     return (
